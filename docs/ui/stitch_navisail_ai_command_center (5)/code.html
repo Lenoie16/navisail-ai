@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NAVISAIL AI - Port Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#2d3133",
+                        "on-secondary-fixed": "#001a41",
+                        "secondary": "#0058bc",
+                        "tertiary-fixed": "#eaddff",
+                        "surface": "#f7f9fc",
+                        "primary-fixed": "#cfe5ff",
+                        "on-primary-fixed-variant": "#274969",
+                        "secondary-container": "#0070eb",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-bright": "#f7f9fc",
+                        "inverse-on-surface": "#eff1f4",
+                        "primary": "#001629",
+                        "outline": "#73777e",
+                        "inverse-primary": "#a8caef",
+                        "on-secondary-fixed-variant": "#004493",
+                        "on-tertiary-fixed": "#25005a",
+                        "on-secondary": "#ffffff",
+                        "background": "#f7f9fc",
+                        "tertiary-container": "#36007b",
+                        "surface-variant": "#e0e3e6",
+                        "on-primary-container": "#7293b6",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "surface-container": "#eceef1",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-tint": "#406182",
+                        "on-surface-variant": "#42474d",
+                        "tertiary": "#1d0048",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#d2bbff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#5a00c6",
+                        "on-background": "#191c1e",
+                        "surface-container-high": "#e6e8eb",
+                        "primary-container": "#002b49",
+                        "on-secondary-container": "#fefcff",
+                        "outline-variant": "#c3c7ce",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#a376ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2f4f7",
+                        "primary-fixed-dim": "#a8caef",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d8dadd",
+                        "on-primary-fixed": "#001d34",
+                        "surface-container-highest": "#e0e3e6",
+                        // Custom Status Colors based on requirements
+                        "status-green": "#22c55e",
+                        "status-amber": "#f59e0b",
+                        "status-red": "#ef4444"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "card-padding": "24px",
+                        "base": "4px",
+                        "section-gap": "32px",
+                        "container-margin": "24px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "kpi-value": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "metadata": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "kpi-value": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "metadata": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Base Styles for seamless integration */
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        /* Custom Scrollbar for sleek UI */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant');
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline');
+        }
+        /* Glassmorphism utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 43, 73, 0.05);
+        }
+        .ai-glow {
+            box-shadow: 0 0 15px rgba(0, 112, 235, 0.2);
+            border: 1px solid rgba(0, 112, 235, 0.3);
+        }
+        
+        /* Map specific */
+        .map-marker:hover .marker-pulse {
+            transform: scale(1.5);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-background flex h-screen overflow-hidden bg-background">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-lowest border-r border-outline-variant/30 w-[260px] h-full fixed left-0 top-0 flex flex-col py-spacing-container-margin px-4 z-40 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">anchor</span>
+</div>
+<div>
+<h1 class="font-headline-md text-[18px] font-bold text-primary tracking-tight leading-none mb-1">NAVISAIL AI</h1>
+<p class="font-metadata text-[10px] text-on-surface-variant uppercase tracking-wider">SAIL Maritime Intelligence</p>
+</div>
+</div>
+<button class="bg-primary text-on-primary hover:bg-primary/90 transition-colors py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 mb-8 shadow-sm">
+<span class="material-symbols-outlined text-lg">add</span>
+            Plan New Shipment
+        </button>
+<div class="flex-1 overflow-y-auto pr-2 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Command Center
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Freight Intelligence
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+                Digital Twin
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary/10 text-secondary font-semibold backdrop-blur-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">anchor</span>
+                Port Intelligence
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200" href="#">
+<span class="material-symbols-outlined">science</span>
+                Scenario Lab
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200" href="#">
+<span class="material-symbols-outlined">description</span>
+                Contract Strategy
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200 justify-between" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">smart_toy</span>
+                    AI Copilot
+                </div>
+<span class="bg-secondary text-on-secondary font-label-caps text-[9px] px-1.5 py-0.5 rounded shadow-sm">NEW</span>
+</a>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/30 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<div class="mt-4 pt-4 flex items-center gap-3 px-2">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/50">
+<img alt="SAIL User" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIdAtF0NoWIqsJ4Wpx3NXxwCrR2PBJt5ZIDizKfXI_6waO3tHnxHleDifueFoyj3zMuIXFDa4eAUc1Cbft7-fxvIZ2abwYVY46QJxaxfsceC4qHciYejBIwft_fSD-Aa6QxqzUPbbfnvpxcimRzsOFUo3bTBkvlupVNLy3ytdArLKZw42JjxJDh_XPFXFzO2nFzvpEOvY5okt-CqDdC8uGEkytTDywaVvJ22tv06UvPXv6JnrRpMW2BA"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-metadata text-[13px] text-on-surface font-semibold truncate">SAIL User</p>
+<p class="font-metadata text-[11px] text-on-surface-variant truncate">Procurement Team</p>
+</div>
+<button class="text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-[18px]">unfold_more</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col ml-[260px] h-screen bg-background relative">
+<!-- TopAppBar -->
+<header class="bg-background/80 backdrop-blur-md docked full-width top-0 sticky z-30 flex justify-between items-center h-16 px-8 border-b border-outline-variant/30">
+<div>
+<!-- Brand logo hidden as per instructions, using space for layout consistency if needed, or just let title take space below -->
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<button class="hover:bg-primary/5 p-2 rounded-full transition-all relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 w-1.5 h-1.5 bg-error rounded-full"></span>
+</button>
+<button class="hover:bg-primary/5 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined text-[20px]">schedule</span>
+</button>
+<button class="hover:bg-primary/5 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+</button>
+</div>
+<div class="flex items-center gap-2 pl-6 border-l border-outline-variant/50">
+<span class="font-metadata text-[13px] text-on-surface-variant">19 Aug 2026, 10:30 IST</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<main class="flex-1 overflow-y-auto p-8 space-y-8 relative">
+<!-- Page Header -->
+<div class="flex flex-col gap-1.5 max-w-7xl mx-auto w-full">
+<div class="flex items-center gap-2">
+<h2 class="font-headline-lg text-[28px] text-primary">Port Intelligence</h2>
+<span class="material-symbols-outlined text-secondary text-[24px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<p class="font-body-md text-on-surface-variant text-[15px]">Real-time intelligence and analytics for East Coast ports.</p>
+</div>
+<!-- KPI Row -->
+<div class="grid grid-cols-5 gap-4 max-w-7xl mx-auto w-full">
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/30 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider text-[10px]">Overall Port Status</span>
+<div class="flex items-baseline gap-2">
+<span class="font-kpi-value text-[24px] text-status-green">Operational</span>
+</div>
+<span class="font-metadata text-outline text-[11px]">All ports are operational</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/30 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider text-[10px]">Avg. Congestion</span>
+<div class="flex items-baseline gap-2">
+<span class="font-kpi-value text-[24px] text-status-amber">Medium</span>
+</div>
+<span class="font-metadata text-outline text-[11px]">Across East Coast</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/30 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider text-[10px]">Vessels at Anchor</span>
+<div class="flex items-baseline gap-2">
+<span class="font-kpi-value text-[24px] text-primary">18</span>
+</div>
+<span class="font-metadata text-outline text-[11px]">Across all ports</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/30 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider text-[10px]">Avg. Waiting Time</span>
+<div class="flex items-baseline gap-2">
+<span class="font-kpi-value text-[24px] text-primary">~2.1 days</span>
+</div>
+<span class="font-metadata text-outline text-[11px]">Across all ports</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/30 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider text-[10px]">Weather Impact</span>
+<div class="flex items-baseline gap-2">
+<span class="font-kpi-value text-[24px] text-status-green">Low</span>
+</div>
+<span class="font-metadata text-outline text-[11px]">No major disruptions</span>
+</div>
+</div>
+<!-- Main Section Split View -->
+<div class="grid grid-cols-12 gap-6 max-w-7xl mx-auto w-full mb-24">
+<!-- Map Container (Left, 7 cols) -->
+<div class="col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden relative flex flex-col h-[700px] shadow-sm">
+<div class="p-5 border-b border-outline-variant/20 z-10 bg-surface-container-lowest/90 backdrop-blur-sm absolute top-0 w-full">
+<h3 class="font-headline-md text-[16px] font-semibold text-primary">East Coast Port Map</h3>
+<p class="font-metadata text-on-surface-variant text-[13px]">Select a port to view detailed intelligence</p>
+</div>
+<!-- Placeholder Map Visual -->
+<div class="flex-1 bg-surface-container-low relative w-full h-full" data-alt="A stylized, minimalist digital map of the East Coast of India featuring a clean, light mode aesthetic with subtle topographic lines and oceanic depth gradients in pale blues and cool grays. The map is viewed from a slight isometric 3D perspective to give depth. Several port locations are marked along the coast, with one specific marker highlighted as a glowing, translucent blue glassmorphism pill, indicating selection. The overall mood is precise, analytical, and high-tech enterprise." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBvgNRRXcDgFbAZPo5U2-aUWRMXVrdLFprWn66cO7s9NhB9aslc3i4S-Y10k-RCfDfF2wlK7zNtQ7R9JjrxP6VPfoQcs7PjKvK68bw2u_rrZev-puAL8S9yPz80S8JS94QdG3rVc2HSXYe8wMcQP37PtpwoF0WYa_jD6RN2yFm0ojIMyjUsJNitXomN6ldEwC3p-H1OgZkbE6Vlqe288uwdZASAtfLEkaDmmqnAgI8ae1gEyTdTPA038A'); background-size: cover; background-position: center;">
+<!-- Abstract representations of map markers -->
+<div class="absolute inset-0 p-8 pt-24">
+<!-- Selected Marker: Paradip -->
+<div class="absolute top-[45%] left-[55%] flex items-center gap-2 transform -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer map-marker">
+<div class="relative flex items-center justify-center">
+<div class="w-5 h-5 bg-secondary rounded-full border-2 border-white shadow-[0_0_15px_rgba(0,88,188,0.6)] z-10"></div>
+<div class="absolute w-10 h-10 bg-secondary/30 rounded-full marker-pulse transition-transform duration-500"></div>
+</div>
+<div class="glass-panel px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-lg">
+<span class="font-metadata font-bold text-primary text-[13px]">Paradip</span>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<span class="font-metadata text-primary flex items-center gap-0.5 text-[12px]"><span class="material-symbols-outlined text-[12px]">arrow_upward</span> 86</span>
+</div>
+</div>
+</div>
+<div class="absolute bottom-6 right-6 flex flex-col gap-2 z-30">
+<div class="glass-panel p-1 rounded-lg flex flex-col border border-white/40">
+<button class="p-2 hover:bg-primary/5 text-primary transition-colors border-b border-outline-variant/20">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+<button class="p-2 hover:bg-primary/5 text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+</div>
+<button class="glass-panel p-2 rounded-lg text-primary border border-white/40 hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-[20px]">my_location</span>
+</button>
+</div></div>
+</div>
+<!-- Details Panel (Right, 5 cols) -->
+<div class="col-span-5 flex flex-col gap-6">
+<!-- Port Details Glass Panel -->
+<div class="glass-panel rounded-2xl border border-white/60 flex flex-col overflow-hidden h-[700px]">
+<!-- Header -->
+<div class="p-6 border-b border-outline-variant/20 flex justify-between items-start bg-white/40">
+<div>
+<div class="flex items-center gap-3 mb-1.5">
+<h3 class="font-headline-md text-[22px] text-primary">Paradip Port</h3>
+<span class="bg-status-green/10 text-status-green font-metadata text-[11px] px-2.5 py-0.5 rounded-full border border-status-green/20">Operational</span>
+</div>
+<p class="font-metadata text-on-surface-variant text-[13px]">Port Code: INPLO | Odisha, India</p>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[22px]">star</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- Top Highlights -->
+<div class="flex gap-4 items-stretch">
+<div class="bg-white/60 rounded-xl p-4 border border-outline-variant/20 flex-shrink-0 w-32 text-center flex flex-col justify-center">
+<span class="font-label-caps text-outline uppercase block mb-2 text-[10px] tracking-wider">Port Score</span>
+<div class="font-display-lg text-[32px] text-primary leading-none">86<span class="text-[14px] text-outline font-normal">/100</span></div>
+<div class="mt-2 text-status-green font-metadata font-medium text-[12px]">Excellent</div>
+</div>
+<!-- 3D Ship Illustration Placeholder -->
+<div class="flex-1 rounded-xl bg-surface-container-lowest border border-outline-variant/20 flex items-center justify-center relative overflow-hidden" data-alt="A clean, high-key, stylized 3D render of a modern bulk carrier cargo ship docked at a port terminal, viewed from a slight isometric angle. The aesthetic is bright and corporate, using a palette of soft whites, cool grays, and subtle electric blue accents. The lighting is soft and studio-like, emphasizing the structural details of the vessel and cranes without deep shadows. It feels like a premium digital twin visualization for a maritime logistics dashboard." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDYinvs_0_ft3vnhheraH5vs04robOpA9AkBADtdQ3dnjMTZEu6bZmrNXnzOedWRKoY1Vu9m_4o7T54GqanrRRy-6OzvxVTUpIvpM1_XjTdbNHgYmAK3lQ_f94DN2knCuW2IcWJJkJRhtOtnvF8kD1douHyxE8CeevviS3jcWssXSAwRmj0Y7rq5e2lkLpUF2E74F-oJdsiXZIHUK3yC0YOZXDmPcOATI6CKENKFMbrV3cqVvo8-_HYSw'); background-size: cover; background-position: center;">
+<!-- Subtle overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 to-transparent"></div>
+</div>
+</div>
+<!-- Detailed Technical KPIs Grid -->
+<div class="grid grid-cols-3 gap-y-6 gap-x-4 pt-2">
+<div class="flex flex-col gap-1 border-l-2 border-primary/20 pl-3">
+<span class="font-metadata text-outline text-[11px]">Max Draft</span>
+<span class="font-body-lg font-semibold text-primary text-[15px]">16.0 m</span>
+</div>
+<div class="flex flex-col gap-1 border-l-2 border-primary/20 pl-3">
+<span class="font-metadata text-outline text-[11px]">Max LOA</span>
+<span class="font-body-lg font-semibold text-primary text-[15px]">300 m</span>
+</div>
+<div class="flex flex-col gap-1 border-l-2 border-primary/20 pl-3">
+<span class="font-metadata text-outline text-[11px]">Berth Slots</span>
+<span class="font-body-lg font-semibold text-primary text-[15px]">14</span>
+</div>
+<div class="flex flex-col gap-1 border-l-2 border-status-amber/40 pl-3">
+<span class="font-metadata text-outline text-[11px]">Congestion</span>
+<span class="font-body-lg font-semibold text-status-amber text-[15px]">Moderate</span>
+</div>
+<div class="flex flex-col gap-1 border-l-2 border-status-amber/40 pl-3">
+<span class="font-metadata text-outline text-[11px]">Expected Wait</span>
+<span class="font-body-lg font-semibold text-status-amber text-[15px]">2.4 Days</span>
+</div>
+<div class="flex flex-col gap-1 border-l-2 border-status-green/40 pl-3">
+<span class="font-metadata text-outline text-[11px]">Weather</span>
+<span class="font-body-lg font-semibold text-status-green text-[15px]">Clear</span>
+</div>
+<div class="flex flex-col gap-1 border-l-2 border-primary/20 pl-3">
+<span class="font-metadata text-outline text-[11px]">Cargo Handling</span>
+<span class="font-body-lg font-semibold text-primary text-[15px]">35k T/day</span>
+</div>
+<div class="flex flex-col gap-1 border-l-2 border-primary/20 pl-3">
+<span class="font-metadata text-outline text-[11px]">Turnaround</span>
+<span class="font-body-lg font-semibold text-primary text-[15px]">1.8 Days</span>
+</div>
+<div class="flex flex-col gap-1 border-l-2 border-status-green/40 pl-3">
+<span class="font-metadata text-outline text-[11px]">Availability</span>
+<span class="font-body-lg font-semibold text-status-green text-[15px]">High</span>
+</div>
+</div>
+<!-- Vessel Compatibility Section -->
+<div class="pt-4 border-t border-outline-variant/20"><div class="flex justify-between items-center mb-4">
+<h4 class="font-label-caps text-primary uppercase tracking-wider text-[11px]">Vessel Compatibility</h4>
+<button class="text-secondary font-metadata text-[11px] hover:underline">View All Details</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline text-[24px]">directions_boat</span>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="font-medium text-primary text-[13px]">Capesize</span>
+<span class="text-on-surface-variant text-[11px]">Conditional (72%)</span>
+</div>
+<div class="w-full h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-status-amber w-[72%]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline text-[24px]">directions_boat</span>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="font-medium text-primary text-[13px]">Panamax</span>
+<span class="text-status-green text-[11px]">Excellent (96%)</span>
+</div>
+<div class="w-full h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-status-green w-[96%]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline text-[24px]">directions_boat</span>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="font-medium text-primary text-[13px]">Supramax</span>
+<span class="text-status-green text-[11px]">Excellent (94%)</span>
+</div>
+<div class="w-full h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-status-green w-[94%]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline text-[24px]">directions_boat</span>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="font-medium text-primary text-[13px]">Handysize</span>
+<span class="text-status-green text-[11px]">Excellent (92%)</span>
+</div>
+<div class="w-full h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-status-green w-[92%]"></div>
+</div>
+</div>
+</div>
+</div></div>
+</div>
+</div>
+</div>
+</div><div class="grid grid-cols-3 gap-6 max-w-7xl mx-auto w-full mb-12">
+<div class="glass-panel p-6 rounded-2xl border border-white/60 flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-status-green/10 flex items-center justify-center text-status-green">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div>
+<h4 class="font-semibold text-primary text-[15px] mb-1">Paradip Advantage</h4>
+<p class="text-[13px] text-on-surface-variant">Paradip currently offers the best overall operational efficiency among East Coast ports.</p>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-2xl border border-white/60 flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">monitoring</span>
+</div>
+<div>
+<h4 class="font-semibold text-primary text-[15px] mb-1">Congestion Outlook</h4>
+<p class="text-[13px] text-on-surface-variant">Congestion expected to improve by 15-20% in next 7 days due to optimized berth allocation.</p>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-2xl border border-white/60 flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-status-amber/10 flex items-center justify-center text-status-amber">
+<span class="material-symbols-outlined">lightbulb</span>
+</div>
+<div>
+<h4 class="font-semibold text-primary text-[15px] mb-1">Alternative Recommendation</h4>
+<p class="text-[13px] text-on-surface-variant">Dhamra becomes preferable if expected waiting time exceeds 4.5 days.</p>
+</div>
+</div>
+</div>
+<!-- Port Comparison Table Section (New addition based on request) -->
+<div class="max-w-7xl mx-auto w-full mb-12"><div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+<div class="p-6 border-b border-outline-variant/20 flex justify-between items-center">
+<h3 class="font-headline-md text-[18px] font-semibold text-primary">Port Comparison</h3>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[13px] font-medium text-on-surface-variant hover:bg-surface-container-low">
+        Customize Columns <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[13px] font-medium text-on-surface-variant hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-[18px]">ios_share</span> Export
+      </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant/20 bg-surface-container-low/30">
+<th class="py-4 px-6 font-label-caps text-[11px] text-outline uppercase tracking-wider">Port</th>
+<th class="py-4 px-6 font-label-caps text-[11px] text-outline uppercase tracking-wider">Port Score</th>
+<th class="py-4 px-6 font-label-caps text-[11px] text-outline uppercase tracking-wider">Congestion</th>
+<th class="py-4 px-6 font-label-caps text-[11px] text-outline uppercase tracking-wider">Expected Wait</th>
+<th class="py-4 px-6 font-label-caps text-[11px] text-outline uppercase tracking-wider">Max Draft</th>
+<th class="py-4 px-6 font-label-caps text-[11px] text-outline uppercase tracking-wider">Cargo Handling</th>
+<th class="py-4 px-6 font-label-caps text-[11px] text-outline uppercase tracking-wider">Weather</th>
+<th class="py-4 px-6 font-label-caps text-[11px] text-outline uppercase tracking-wider">Trend (7D)</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-[14px]">
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors">
+<td class="py-4 px-6 font-semibold text-primary">Paradip</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<span class="w-8 text-status-green font-bold">86</span>
+<div class="flex-1 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden min-w-[60px]">
+<div class="h-full bg-status-green w-[86%]"></div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6"><span class="px-2 py-1 rounded bg-status-amber/10 text-status-amber text-[12px] font-medium">Medium</span></td>
+<td class="py-4 px-6 text-on-surface-variant">2.1 days</td>
+<td class="py-4 px-6 text-on-surface-variant">16.0 m</td>
+<td class="py-4 px-6 text-on-surface-variant">High</td>
+<td class="py-4 px-6 text-on-surface-variant">Normal</td>
+<td class="py-4 px-6 text-status-green"><span class="material-symbols-outlined">trending_up</span></td>
+</tr>
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors">
+<td class="py-4 px-6 font-semibold text-primary">Dhamra</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<span class="w-8 text-status-green font-bold">76</span>
+<div class="flex-1 h-1.5 bg-outline-variant/20 rounded-full overflow-hidden min-w-[60px]">
+<div class="h-full bg-status-green w-[76%]"></div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6"><span class="px-2 py-1 rounded bg-status-amber/10 text-status-amber text-[12px] font-medium">Medium</span></td>
+<td class="py-4 px-6 text-on-surface-variant">2.8 days</td>
+<td class="py-4 px-6 text-on-surface-variant">15.5 m</td>
+<td class="py-4 px-6 text-on-surface-variant">High</td>
+<td class="py-4 px-6 text-on-surface-variant">Normal</td>
+<td class="py-4 px-6 text-status-green"><span class="material-symbols-outlined">trending_up</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+</main>
+<!-- Floating Interactive Layer (Port Switching Impact) -->
+<div class="fixed bottom-10 right-12 z-50 glass-panel p-6 rounded-2xl w-[360px] shadow-2xl transform transition-transform hover:-translate-y-1 bg-white/50">
+<div class="flex justify-between items-center mb-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">compare_arrows</span>
+<h4 class="font-label-caps text-primary uppercase tracking-wider text-[11px]">Port Switching Impact</h4>
+</div>
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+<div class="flex items-center gap-3 mb-5 text-[14px]">
+<span class="font-semibold text-primary">Paradip</span>
+<span class="text-outline text-[12px]">vs</span>
+<span class="font-medium text-on-surface-variant">Dhamra</span>
+</div>
+<div class="space-y-3.5">
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2.5">
+<span class="font-metadata text-on-surface-variant text-[13px]">Ocean Freight</span>
+<span class="font-metadata font-semibold text-status-red">+₹32L</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2.5">
+<span class="font-metadata text-on-surface-variant text-[13px]">Waiting Time</span>
+<span class="font-metadata font-semibold text-status-green">-2.0 days</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2.5">
+<span class="font-metadata text-on-surface-variant text-[13px]">Demurrage</span>
+<span class="font-metadata font-semibold text-status-green">-₹68L</span>
+</div>
+<div class="flex justify-between items-center pt-2">
+<span class="font-body-md font-semibold text-primary text-[14px]">Net Landed Cost</span>
+<span class="font-body-lg font-bold text-status-green text-[16px]">-₹1.8 Cr</span>
+</div>
+</div>
+<button class="w-full mt-6 bg-secondary text-on-secondary py-2.5 rounded-lg font-metadata font-semibold text-[13px] hover:bg-secondary-container transition-colors shadow-sm">
+                Apply Scenario
+            </button>
+</div>
+</div>
+</body></html>

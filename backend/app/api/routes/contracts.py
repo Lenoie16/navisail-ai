@@ -1,0 +1,1 @@
+"""Contracts route scaffold."""

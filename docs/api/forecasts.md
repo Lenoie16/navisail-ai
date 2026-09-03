@@ -1,0 +1,3 @@
+# Forecasts API
+
+Scaffold document.

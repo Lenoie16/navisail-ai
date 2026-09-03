@@ -1,0 +1,1 @@
+"""Maritime state scaffold."""

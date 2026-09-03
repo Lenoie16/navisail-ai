@@ -1,0 +1,3 @@
+# Berth
+
+Scaffold document.

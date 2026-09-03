@@ -1,0 +1,1 @@
+"""Recommendation schema scaffold."""

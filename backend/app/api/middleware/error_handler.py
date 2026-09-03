@@ -1,0 +1,1 @@
+"""Exception translation middleware placeholder."""

@@ -1,0 +1,1 @@
+"""Risk schema scaffold."""

@@ -1,0 +1,114 @@
+services:
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      DATABASE_URL: ${COMPOSE_DATABASE_URL:-postgresql+psycopg://navisail:${POSTGRES_PASSWORD}@postgres:5432/navisail}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-0.1.0-rc.1}
+      DATABASE_URL: ${COMPOSE_DATABASE_URL:-postgresql+psycopg://navisail:${POSTGRES_PASSWORD}@postgres:5432/navisail}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DEMO_MODE: ${DEMO_MODE:-false}
+      ENABLE_DOCS: ${ENABLE_DOCS:-false}
+      AUTH_REQUIRED: ${AUTH_REQUIRED:-true}
+      AUTH_TOKEN: ${AUTH_TOKEN:?AUTH_TOKEN is required}
+      ERROR_TRACKING_DSN: ${ERROR_TRACKING_DSN:-}
+      NAVISAIL_MODE: ${NAVISAIL_MODE:-LIVE}
+      DATADOCKED_ENABLED: ${DATADOCKED_ENABLED:-false}
+      DATADOCKED_API_KEY: ${DATADOCKED_API_KEY:-}
+      DATADOCKED_BASE_URL: ${DATADOCKED_BASE_URL:-https://api.datadocked.com}
+      DATADOCKED_CACHE_TTL_SECONDS: ${DATADOCKED_CACHE_TTL_SECONDS:-300}
+      DATADOCKED_CREDIT_GUARD_ENABLED: ${DATADOCKED_CREDIT_GUARD_ENABLED:-true}
+      DATADOCKED_MIN_CREDITS_REQUIRED: ${DATADOCKED_MIN_CREDITS_REQUIRED:-10}
+      DATADOCKED_FAIL_OPEN_TO_CACHE: ${DATADOCKED_FAIL_OPEN_TO_CACHE:-true}
+      DATADOCKED_FALLBACK_TO_SYNTHETIC: ${DATADOCKED_FALLBACK_TO_SYNTHETIC:-false}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/ready')"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["python", "scripts/run_worker.py"]
+    environment:
+      DATABASE_URL: ${COMPOSE_DATABASE_URL:-postgresql+psycopg://navisail:${POSTGRES_PASSWORD}@postgres:5432/navisail}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      WORKER_HEARTBEAT_SECONDS: ${WORKER_HEARTBEAT_SECONDS:-10}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000/api/v1}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-navisail}
+      POSTGRES_USER: ${POSTGRES_USER:-navisail}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

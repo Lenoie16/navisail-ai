@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NAVISAIL AI - What-If / Risk Simulator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#191c1e",
+                        "on-primary-fixed-variant": "#274969",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#f7f9fc",
+                        "primary-fixed-dim": "#a8caef",
+                        "outline": "#73777e",
+                        "primary": "#001629",
+                        "surface-container-high": "#e6e8eb",
+                        "outline-variant": "#c3c7ce",
+                        "on-background": "#191c1e",
+                        "tertiary-container": "#36007b",
+                        "on-primary-fixed": "#001d34",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#004493",
+                        "surface-container-highest": "#e0e3e6",
+                        "surface": "#f7f9fc",
+                        "on-surface-variant": "#42474d",
+                        "surface-dim": "#d8dadd",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#d2bbff",
+                        "primary-fixed": "#cfe5ff",
+                        "on-primary-container": "#7293b6",
+                        "background": "#f7f9fc",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#1d0048",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#a376ff",
+                        "on-tertiary-fixed-variant": "#5a00c6",
+                        "inverse-surface": "#2d3133",
+                        "inverse-on-surface": "#eff1f4",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#25005a",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#406182",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed": "#001a41",
+                        "surface-container-low": "#f2f4f7",
+                        "secondary-container": "#0070eb",
+                        "tertiary-fixed": "#eaddff",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#eceef1",
+                        "primary-container": "#002b49",
+                        "inverse-primary": "#a8caef",
+                        "secondary": "#0058bc",
+                        "on-secondary-container": "#fefcff",
+                        "surface-variant": "#e0e3e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "32px",
+                        "gutter": "20px",
+                        "container-margin": "24px",
+                        "base": "4px",
+                        "card-padding": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "metadata": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "kpi-value": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "metadata": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "kpi-value": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(195, 199, 206, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 43, 73, 0.1);
+        }
+        .btn-primary {
+            background-color: #002B49;
+            color: #ffffff;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .btn-secondary {
+            background-color: #0058bc;
+            color: #ffffff;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 43, 73, 0.2);
+            color: #002B49;
+        }
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        .compare-slider-thumb {
+            width: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 10px rgba(0, 88, 188, 0.5);
+            cursor: ew-resize;
+            position: relative;
+        }
+        .compare-slider-thumb::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #0058bc;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%230058bc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen w-screen overflow-hidden flex relative">
+<!-- Atmospheric Shader Background -->
+<div class="absolute inset-0 z-0 pointer-events-none opacity-40">
+</div>
+<!-- SideNavBar -->
+<aside class="w-[260px] h-full fixed left-0 top-0 bg-surface-container-lowest dark:bg-on-surface border-r border-outline-variant dark:border-outline flex flex-col py-section-gap px-gutter z-30">
+<div class="mb-8 px-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl" style='font-variation-settings: "FILL" 1;'>directions_boat</span>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">NAVISAIL AI</div>
+<div class="font-metadata text-metadata text-on-surface-variant">Maritime Intelligence</div>
+</div>
+</div>
+<button class="btn-primary w-full py-3 rounded-lg flex items-center justify-center gap-2 mb-8 font-body-lg">
+<span class="material-symbols-outlined">add</span>
+            Plan New Shipment
+        </button>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant dark:text-on-surface-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-all duration-200 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard_customize</span>
+<span class="font-body-md text-body-md">Command Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant dark:text-on-surface-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-all duration-200 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-body-md text-body-md">Freight Intelligence</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant dark:text-on-surface-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-all duration-200 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+<span class="font-body-md text-body-md">Digital Twin</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant dark:text-on-surface-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-all duration-200 scale-[0.98] active:scale-95" href="#">
+<span class="material-symbols-outlined">anchor</span>
+<span class="font-body-md text-body-md">Port Intelligence</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container/60 backdrop-blur-xl text-on-secondary-container rounded-xl font-bold scale-[0.98] active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">science</span>
+<span class="font-body-md text-body-md">Scenario Lab</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant/30 pt-4 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">sensors</span>
+<span class="font-body-md">System Status</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[260px] flex-1 flex flex-col h-full relative z-10 overflow-y-auto">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-260px)] h-16 bg-surface/80 backdrop-blur-md dark:bg-on-surface/80 border-b border-outline-variant/30 dark:border-outline/30 flex justify-between items-center px-gutter z-40">
+<div class="flex items-center gap-4">
+<!-- Search could go here -->
+</div>
+<div class="flex items-center gap-4 text-primary dark:text-primary-fixed">
+<button class="hover:bg-surface-container-low dark:hover:bg-surface-container rounded-full p-2 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:bg-surface-container-low dark:hover:bg-surface-container rounded-full p-2 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">schedule</span>
+</button>
+<button class="hover:bg-surface-container-low dark:hover:bg-surface-container rounded-full p-2 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden ml-2 border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A clean, professional headshot of a corporate user on a neutral background, highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAreAto0zxsXl3RSks9KPMS83EPTyH2NtBZgRjy4PptHJ41j9xxV6JD_6KguWNrTsppngIE-w_fcxWnYovELdoyZr7AuozU1bF_S8pENRkSGz5wQSr_1mKmJCOC-yK6EJ0fQ3INkQINMK_CsSMioylE7OKycNa1XhOz4-uErGdCLtReAHPRF4H6BzkqfwtYZWpAR2lCIsCvPXdc1X2LSgWHVLVPhZx0nfGPCBtLP-OHxm1I-nU1kWxYVw"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<div class="pt-24 pb-12 px-8 max-w-[1440px] mx-auto w-full">
+<!-- Header Section -->
+<div class="flex justify-between items-start mb-8">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary flex items-center gap-2">
+                        What-If / Risk Simulator 
+                        <span class="material-symbols-outlined text-secondary" style='font-variation-settings: "FILL" 1;'>science</span>
+</h1>
+<p class="text-on-surface-variant font-body-lg mt-2">Simulate different market, operational and geopolitical scenarios to evaluate impact on cost and delivery.</p>
+</div>
+<div class="flex gap-4">
+<button class="btn-glass px-4 py-2 rounded-lg flex items-center gap-2 font-metadata">
+<span class="material-symbols-outlined text-[18px]">save</span> Save Scenario
+                    </button>
+<button class="btn-glass px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Base Plan Card -->
+<section class="mb-10">
+<h2 class="font-headline-md text-headline-md mb-4 text-primary">Select a Base Plan</h2>
+<div class="glass-panel rounded-xl p-card-padding flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="w-32 h-20 rounded-lg overflow-hidden border border-outline-variant bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A high-quality top-down view of a large bulk carrier cargo ship traversing deep blue oceanic waters, realistic corporate logistics imagery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtZUBXM1y3b9Q1V1MQ1FkD4tTEjW_cB1Ld627GyQjo6wM0yTS4bj890yWqOs7cKBXpwYl3XoDPm46A9HeFRionq2jZ0TN6FxAe57EYm4WRepBUR4gE8ceWPuQCT16sLSuxBUfQpOHqUJLSjBGRz1yccDQHJP8BreCd5NhbpfXbikWBIUBYPtOzzNexoabbJx3LckPs_cfgDqsS2NALsZUdI3RbHcyo694JIF61_DmhY9rr4jxNldwPcg"/>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Base Plan</div>
+<div class="font-headline-md text-headline-md text-primary mb-1">Australia → Paradip</div>
+<div class="font-metadata text-metadata text-outline flex gap-4">
+<span class="">2 × Panamax</span>
+<span class="">3-Voyage COA</span>
+<span class="">Medium Term</span>
+</div>
+</div>
+</div>
+<div class="flex gap-12 text-right">
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Est. Landed Cost</div>
+<div class="font-kpi-value text-kpi-value text-primary">₹61.27 Cr</div>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">ETA to Discharge</div>
+<div class="font-kpi-value text-kpi-value text-primary text-[20px] leading-8 mt-1">02 Oct 2026</div>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Risk Level</div>
+<div class="font-kpi-value text-kpi-value text-yellow-600 text-[20px] leading-8 mt-1">Medium</div>
+</div>
+</div>
+<button class="btn-glass px-4 py-2 rounded-lg font-metadata ml-4">Change Plan</button>
+</div>
+</section>
+<!-- Create Scenarios (Controls) -->
+<section class="mb-10">
+<div class="flex justify-between items-center mb-4">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">Create Scenarios</h2>
+<p class="text-on-surface-variant font-metadata">Adjust key variables to see how outcomes change.</p>
+</div>
+<div class="flex gap-3">
+<button class="btn-glass px-4 py-2 rounded-lg flex items-center gap-2 font-metadata">
+<span class="material-symbols-outlined text-[16px]">refresh</span> Reset
+                        </button>
+<button class="btn-primary px-6 py-2 rounded-lg flex items-center gap-2 font-metadata font-bold" id="runSimBtn">
+<span class="material-symbols-outlined text-[18px]">play_circle</span> Run Simulation
+                        </button>
+<button class="btn-secondary px-6 py-2 rounded-lg flex items-center gap-2 font-metadata font-bold" id="compareBtn">
+<span class="material-symbols-outlined text-[18px]">compare_arrows</span> Compare Strategy
+                        </button>
+</div>
+</div>
+<div class="grid grid-cols-4 gap-gutter">
+<!-- Slider 1 -->
+<div class="glass-panel rounded-xl p-4">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 uppercase">Freight Rate</div>
+<div class="font-headline-md text-headline-md mb-4">+20%</div>
+<div class="relative w-full h-1 bg-surface-container-high rounded-full">
+<div class="absolute left-1/2 top-0 h-full w-1/4 bg-secondary rounded-full"></div>
+<div class="absolute left-[75%] top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-secondary rounded-full shadow cursor-pointer"></div>
+</div>
+<div class="flex justify-between mt-2 font-metadata text-outline text-[10px]">
+<span class="">-50%</span><span class="">+50%</span>
+</div>
+</div>
+<!-- Dropdown 1 -->
+<div class="glass-panel rounded-xl p-4">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 uppercase">Port Congestion</div>
+<div class="w-full bg-surface border border-outline-variant rounded-lg p-3 flex justify-between items-center mt-2 cursor-pointer">
+<span class="font-body-md text-primary font-medium">High</span>
+<span class="material-symbols-outlined text-outline">expand_more</span>
+</div>
+</div>
+<!-- Slider 2 -->
+<div class="glass-panel rounded-xl p-4">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 uppercase">Bunker Price</div>
+<div class="font-headline-md text-headline-md mb-4">+10%</div>
+<div class="relative w-full h-1 bg-surface-container-high rounded-full">
+<div class="absolute left-1/2 top-0 h-full w-[15%] bg-secondary rounded-full"></div>
+<div class="absolute left-[65%] top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-secondary rounded-full shadow cursor-pointer"></div>
+</div>
+<div class="flex justify-between mt-2 font-metadata text-outline text-[10px]">
+<span class="">-30%</span><span class="">+30%</span>
+</div>
+</div>
+<!-- Dropdown 2 -->
+<div class="glass-panel rounded-xl p-4">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 uppercase">Geopolitical Risk</div>
+<div class="w-full bg-surface border border-outline-variant rounded-lg p-3 flex justify-between items-center mt-2 cursor-pointer">
+<span class="font-body-md text-primary font-medium">Elevated</span>
+<span class="material-symbols-outlined text-outline">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Strategy Comparison Area (Hidden initially) -->
+<div class="hidden w-full rounded-xl overflow-hidden mb-10 relative border border-outline-variant shadow-lg transition-all duration-500 opacity-0 bg-surface-container-lowest glass-panel" id="compareArea">
+<div class="p-6 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-low">
+<h3 class="font-headline-md text-[20px] text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">compare</span> Strategy Comparison
+        </h3>
+<div class="flex gap-4">
+<div class="bg-success/10 px-4 py-2 rounded-lg flex items-center gap-2 border border-green-200">
+<span class="material-symbols-outlined text-green-700">savings</span>
+<div>
+<div class="text-[10px] font-bold text-green-700 uppercase">Projected Savings</div>
+<div class="font-headline-md text-green-700 text-[18px]">₹1.8 Cr</div>
+</div>
+</div>
+<button class="btn-glass px-2 py-2 rounded-lg" id="closeCompareBtn">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<div class="relative w-full h-[350px] overflow-hidden" id="splitContainer">
+<!-- Base Plan (Left) -->
+<div class="absolute inset-0 w-full h-full bg-surface-container-lowest p-8 flex flex-col justify-center">
+<div class="max-w-[45%]">
+<div class="inline-block bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full font-label-caps mb-4 uppercase">Base Plan</div>
+<div class="grid grid-cols-2 gap-y-6 gap-x-8">
+<div>
+<div class="font-label-caps text-outline mb-1">VESSELS</div>
+<div class="font-headline-md text-primary text-[20px]">2 x Panamax</div>
+</div>
+<div>
+<div class="font-label-caps text-outline mb-1">PORT</div>
+<div class="font-headline-md text-primary text-[20px]">Paradip</div>
+</div>
+<div>
+<div class="font-label-caps text-outline mb-1">CONTRACT</div>
+<div class="font-headline-md text-primary text-[20px]">3-Voyage COA</div>
+</div>
+<div>
+<div class="font-label-caps text-outline mb-1">ETA</div>
+<div class="font-headline-md text-primary text-[20px]">02 Oct 2026</div>
+</div>
+<div>
+<div class="font-label-caps text-outline mb-1">EST. COST</div>
+<div class="font-headline-md text-primary text-[24px]">₹61.27 Cr</div>
+</div>
+<div>
+<div class="font-label-caps text-outline mb-1">RISK LEVEL</div>
+<div class="font-headline-md text-yellow-600 text-[20px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[20px]">warning</span> Medium
+                        </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Optimized Plan (Right - Clipped) -->
+<div class="absolute inset-0 w-full h-full bg-secondary-fixed/30 backdrop-blur-sm p-8 flex flex-col justify-center items-end" id="rightSplit" style="clip-path: inset(0 0 0 50%);">
+<div class="max-w-[45%] text-left w-full mr-auto ml-auto pl-[10%]">
+<div class="inline-block bg-secondary text-white px-3 py-1 rounded-full font-label-caps mb-4 uppercase flex items-center gap-1 w-max">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span> Optimized Plan
+                </div>
+<div class="grid grid-cols-2 gap-y-6 gap-x-8">
+<div>
+<div class="font-label-caps text-on-surface-variant mb-1">VESSELS</div>
+<div class="font-headline-md text-secondary text-[20px]">1 x Capesize</div>
+</div>
+<div>
+<div class="font-label-caps text-on-surface-variant mb-1">PORT</div>
+<div class="font-headline-md text-secondary text-[20px]">Dhamra</div>
+</div>
+<div>
+<div class="font-label-caps text-on-surface-variant mb-1">CONTRACT</div>
+<div class="font-headline-md text-secondary text-[20px]">Spot (Optimized)</div>
+</div>
+<div>
+<div class="font-label-caps text-on-surface-variant mb-1">ETA</div>
+<div class="font-headline-md text-green-700 text-[20px] flex items-center gap-1">
+                            03 Sep 2026 <span class="material-symbols-outlined text-[16px]">arrow_downward</span>
+</div>
+</div>
+<div>
+<div class="font-label-caps text-on-surface-variant mb-1">EST. COST</div>
+<div class="font-headline-md text-green-700 text-[24px] flex items-center gap-1">
+                            ₹59.47 Cr <span class="material-symbols-outlined text-[20px]">arrow_downward</span>
+</div>
+</div>
+<div>
+<div class="font-label-caps text-on-surface-variant mb-1">RISK LEVEL</div>
+<div class="font-headline-md text-green-600 text-[20px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[20px]">check_circle</span> Low
+                        </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Slider Handle -->
+<div class="absolute top-0 bottom-0 left-[50%] -ml-[2px] z-20 flex items-center justify-center compare-slider-thumb" id="sliderHandle">
+</div>
+</div>
+</div>
+<!-- 3D Visualization Area (Hidden initially) -->
+<div class="hidden w-full h-80 rounded-xl overflow-hidden mb-10 relative border border-outline-variant shadow-lg transition-all duration-500 opacity-0" id="simVizArea">
+<div class="absolute top-4 left-4 glass-panel px-4 py-2 rounded-lg z-10 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary animate-ping"></div>
+<span class="font-label-caps text-label-caps text-primary">Live Simulation Active</span>
+</div>
+</div>
+<!-- Scenario Overview Cards -->
+<section class="mb-10">
+<h2 class="font-headline-md text-headline-md text-primary mb-4">Scenario Overview</h2>
+<div class="grid grid-cols-5 gap-4"><div class="bg-surface-container-lowest border-2 border-secondary rounded-xl p-6 text-center shadow-sm relative"><div class="w-12 h-12 rounded-full bg-secondary-fixed mx-auto flex items-center justify-center mb-4 text-secondary"><span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>work</span></div><div class="font-headline-md text-[18px] font-semibold text-primary">Base Plan</div><div class="font-metadata text-on-surface-variant mb-4">Current Plan</div><div class="material-symbols-outlined text-outline mb-2">arrow_downward</div><div class="font-kpi-value text-[24px] font-bold text-primary">₹61.27 Cr</div><div class="font-metadata text-on-surface-variant mt-2">Medium Risk</div></div><div class="glass-panel rounded-xl p-6 text-center relative hover:-translate-y-1 transition-transform"><div class="w-12 h-12 rounded-full bg-error-container mx-auto flex items-center justify-center mb-4 text-error"><span class="material-symbols-outlined">trending_up</span></div><div class="font-headline-md text-[18px] font-semibold text-primary">Scenario 1</div><div class="font-metadata text-on-surface-variant mb-4">High Freight</div><div class="material-symbols-outlined text-outline mb-2">arrow_downward</div><div class="font-kpi-value text-[24px] font-bold text-primary">₹71.18 Cr</div><div class="font-metadata text-error mt-2 font-medium">High Risk</div></div><div class="glass-panel rounded-xl p-6 text-center relative hover:-translate-y-1 transition-transform"><div class="w-12 h-12 rounded-full bg-surface-container-highest mx-auto flex items-center justify-center mb-4 text-on-surface-variant"><span class="material-symbols-outlined">precision_manufacturing</span></div><div class="font-headline-md text-[18px] font-semibold text-primary">Scenario 2</div><div class="font-metadata text-on-surface-variant mb-4">Port Congestion</div><div class="material-symbols-outlined text-outline mb-2">arrow_downward</div><div class="font-kpi-value text-[24px] font-bold text-primary">₹66.94 Cr</div><div class="font-metadata text-error mt-2 font-medium">High Risk</div></div><div class="glass-panel rounded-xl p-6 text-center relative hover:-translate-y-1 transition-transform"><div class="w-12 h-12 rounded-full bg-surface-container-highest mx-auto flex items-center justify-center mb-4 text-on-surface-variant"><span class="material-symbols-outlined">thunderstorm</span></div><div class="font-headline-md text-[18px] font-semibold text-primary">Scenario 3</div><div class="font-metadata text-on-surface-variant mb-4">Severe Weather</div><div class="material-symbols-outlined text-outline mb-2">arrow_downward</div><div class="font-kpi-value text-[24px] font-bold text-primary">₹64.32 Cr</div><div class="font-metadata text-on-surface-variant mt-2 font-medium">Medium Risk</div></div><div class="glass-panel rounded-xl p-6 text-center relative hover:-translate-y-1 transition-transform"><div class="w-12 h-12 rounded-full bg-error-container mx-auto flex items-center justify-center mb-4 text-error"><span class="material-symbols-outlined">public</span></div><div class="font-headline-md text-[18px] font-semibold text-primary">Scenario 4</div><div class="font-metadata text-on-surface-variant mb-4">Geopolitical Shock</div><div class="material-symbols-outlined text-outline mb-2">arrow_downward</div><div class="font-kpi-value text-[24px] font-bold text-primary">₹78.85 Cr</div><div class="font-metadata text-error mt-2 font-medium">Very High Risk</div></div></div>
+</section>
+<!-- Chart and Key Takeaways -->
+<section class="grid grid-cols-12 gap-gutter mb-10">
+<!-- Bar Chart Placeholder -->
+<div class="col-span-8 glass-panel rounded-xl p-6">
+<h3 class="font-headline-md text-[18px] text-primary mb-4">Estimated Landed Cost (₹ Cr)</h3>
+<div class="h-64 flex items-end justify-between gap-4 px-4 pb-6 relative border-b border-l border-outline-variant/30">
+<!-- Y axis labels -->
+<div class="absolute -left-6 top-0 bottom-6 flex flex-col justify-between text-metadata text-outline h-full py-2">
+<span>100</span>
+<span>80</span>
+<span>60</span>
+<span>40</span>
+<span>20</span>
+<span>0</span>
+</div>
+<!-- Bars -->
+<div class="flex flex-col items-center justify-end w-full h-full group relative">
+<div class="text-metadata text-primary font-bold mb-2">61.27</div>
+<div class="w-16 bg-[#94a3b8] rounded-t-sm" style="height: 61.27%;"></div>
+<div class="text-label-caps text-on-surface-variant mt-3 absolute -bottom-8">Base Plan</div>
+</div>
+<div class="flex flex-col items-center justify-end w-full h-full group relative">
+<div class="text-metadata text-primary font-bold mb-2">71.18</div>
+<div class="w-16 bg-[#fb7185] rounded-t-sm" style="height: 71.18%;"></div>
+<div class="text-label-caps text-on-surface-variant mt-3 absolute -bottom-8 whitespace-nowrap">High Freight</div>
+</div>
+<div class="flex flex-col items-center justify-end w-full h-full group relative">
+<div class="text-metadata text-primary font-bold mb-2">66.94</div>
+<div class="w-16 bg-[#fbbf24] rounded-t-sm" style="height: 66.94%;"></div>
+<div class="text-label-caps text-on-surface-variant mt-3 absolute -bottom-8 whitespace-nowrap">Port Congestion</div>
+</div>
+<div class="flex flex-col items-center justify-end w-full h-full group relative">
+<div class="text-metadata text-primary font-bold mb-2">64.32</div>
+<div class="w-16 bg-[#fbbf24] rounded-t-sm" style="height: 64.32%;"></div>
+<div class="text-label-caps text-on-surface-variant mt-3 absolute -bottom-8 whitespace-nowrap">Severe Weather</div>
+</div>
+<div class="flex flex-col items-center justify-end w-full h-full group relative">
+<div class="text-metadata text-primary font-bold mb-2">78.85</div>
+<div class="w-16 bg-[#e11d48] rounded-t-sm" style="height: 78.85%;"></div>
+<div class="text-label-caps text-on-surface-variant mt-3 absolute -bottom-8 whitespace-nowrap">Geopolitical Shock</div>
+</div>
+</div>
+</div>
+<!-- Key Takeaways -->
+<div class="col-span-4 glass-panel rounded-xl p-6">
+<h3 class="font-headline-md text-[18px] text-primary mb-6">Key Takeaways</h3>
+<div class="flex flex-col gap-6">
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-error/10 flex items-center justify-center text-error flex-shrink-0 mt-1">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+</div>
+<div>
+<div class="font-bold text-primary text-body-md">Geopolitical risks have the highest cost impact</div>
+<div class="text-metadata text-on-surface-variant mt-1">Potential increase of ₹17.58 Cr (+28.7%)</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 flex-shrink-0 mt-1">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+</div>
+<div>
+<div class="font-bold text-primary text-body-md">High freight scenario increases cost by</div>
+<div class="text-metadata text-on-surface-variant mt-1">₹9.91 Cr (+16.2%)</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-600 flex-shrink-0 mt-1">
+<span class="material-symbols-outlined text-[18px]">anchor</span>
+</div>
+<div>
+<div class="font-bold text-primary text-body-md">Port congestion adds ~₹5.67 Cr</div>
+<div class="text-metadata text-on-surface-variant mt-1">Consider early berthing or alternate port</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-600 flex-shrink-0 mt-1">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+<div>
+<div class="font-bold text-primary text-body-md">Severe weather impact is moderate</div>
+<div class="text-metadata text-on-surface-variant mt-1">Maintain schedule flexibility</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Layout Grid -->
+<section class="mb-10"><div class="glass-panel rounded-xl overflow-hidden"><div class="p-6 border-b border-outline-variant/30"><h3 class="font-headline-md text-[18px] text-primary">Impact Breakdown</h3><p class="text-metadata text-on-surface-variant">Detailed impact on key cost components</p></div><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-surface-container-low/50"><tr class="border-b border-outline-variant/30"><th class="p-4 font-label-caps text-on-surface-variant">Cost Component</th><th class="p-4 font-label-caps text-on-surface-variant">Base Plan</th><th class="p-4 font-label-caps text-on-surface-variant">Scenario 1</th><th class="p-4 font-label-caps text-on-surface-variant">Scenario 2</th><th class="p-4 font-label-caps text-on-surface-variant">Scenario 3</th><th class="p-4 font-label-caps text-on-surface-variant">Scenario 4</th></tr></thead><tbody class="font-body-md"><tr class="border-b border-outline-variant/20"><td class="p-4 font-medium">Freight Cost</td><td class="p-4">₹32.40 Cr</td><td class="p-4">₹38.88 Cr <span class="text-error text-[10px] ml-1">+20%</span></td><td class="p-4">₹32.40 Cr <span class="text-outline text-[10px] ml-1">0%</span></td><td class="p-4">₹32.40 Cr <span class="text-outline text-[10px] ml-1">0%</span></td><td class="p-4">₹38.88 Cr <span class="text-error text-[10px] ml-1">+20%</span></td></tr><tr class="border-b border-outline-variant/20"><td class="p-4 font-medium">Bunker Cost</td><td class="p-4">₹7.85 Cr</td><td class="p-4">₹8.64 Cr <span class="text-error text-[10px] ml-1">+10%</span></td><td class="p-4">₹7.85 Cr <span class="text-outline text-[10px] ml-1">0%</span></td><td class="p-4">₹8.64 Cr <span class="text-error text-[10px] ml-1">+10%</span></td><td class="p-4">₹9.42 Cr <span class="text-error text-[10px] ml-1">+20%</span></td></tr><tr class="bg-surface-container-lowest/50 font-bold"><td class="p-4">Total Landed Cost</td><td class="p-4">₹61.27 Cr</td><td class="p-4 text-error">₹71.18 Cr</td><td class="p-4 text-error">₹66.94 Cr</td><td class="p-4 text-primary">₹64.32 Cr</td><td class="p-4 text-error">₹78.85 Cr</td></tr></tbody></table></div></div></section><section class="grid grid-cols-12 gap-gutter mb-10"><div class="col-span-8 glass-panel rounded-xl p-6"><h3 class="font-headline-md text-[18px] text-primary mb-4">Risk Analysis</h3><p class="text-metadata text-on-surface-variant mb-6">Probability distribution of landed cost</p><div class="h-64 relative flex items-end justify-center"><svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 800 230">
+<defs>
+<filter height="120%" id="drop-shadow" width="120%" x="-10%" y="-10%">
+<fedropshadow dx="0" dy="4" flood-color="#001629" flood-opacity="0.15" stddeviation="6"></fedropshadow>
+</filter>
+<lineargradient id="floor-grad" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"></stop>
+<stop offset="100%" stop-color="#e2e8f0" stop-opacity="0.1"></stop>
+</lineargradient>
+<lineargradient id="grad-base-3d" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.4"></stop>
+<stop offset="100%" stop-color="#0284c7" stop-opacity="0.05"></stop>
+</lineargradient>
+<lineargradient id="grad-freight-3d" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#3b82f6" stop-opacity="0.4"></stop>
+<stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.05"></stop>
+</lineargradient>
+<lineargradient id="grad-port-3d" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#64748b" stop-opacity="0.4"></stop>
+<stop offset="100%" stop-color="#475569" stop-opacity="0.05"></stop>
+</lineargradient>
+<lineargradient id="grad-weather-3d" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#10b981" stop-opacity="0.4"></stop>
+<stop offset="100%" stop-color="#059669" stop-opacity="0.05"></stop>
+</lineargradient>
+<lineargradient id="grad-geo-3d" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#f43f5e" stop-opacity="0.4"></stop>
+<stop offset="100%" stop-color="#e11d48" stop-opacity="0.05"></stop>
+</lineargradient>
+</defs>
+<!-- Ground/Floor Plane -->
+<path d="M -50,190 L 850,190 L 900,230 L -100,230 Z" fill="url(#floor-grad)"></path>
+<!-- Grid Lines (Glassmorphic) -->
+<line stroke="rgba(195, 199, 206, 0.4)" stroke-width="1" x1="0" x2="800" y1="190" y2="190"></line>
+<line stroke="rgba(195, 199, 206, 0.4)" stroke-width="1" x1="0" x2="0" y1="0" y2="190"></line>
+<line stroke="rgba(195, 199, 206, 0.2)" stroke-width="1" x1="0" x2="800" y1="95" y2="95"></line>
+<!-- Curves as 3D Ribbons -->
+<!-- Base Plan -->
+<g filter="url(#drop-shadow)">
+<path d="M 50,190 C 150,190 200,20 300,190 Z" fill="url(#grad-base-3d)"></path>
+<path d="M 50,190 C 150,190 200,20 300,190" fill="none" opacity="0.4" stroke="#0284c7" stroke-width="5"></path>
+<path d="M 50,188 C 150,188 200,18 300,188" fill="none" stroke="#38bdf8" stroke-width="2"></path>
+</g>
+<!-- Port Congestion (Slate) -->
+<g filter="url(#drop-shadow)">
+<path d="M 150,190 C 250,190 300,40 400,190 Z" fill="url(#grad-port-3d)"></path>
+<path d="M 150,190 C 250,190 300,40 400,190" fill="none" opacity="0.4" stroke="#475569" stroke-width="5"></path>
+<path d="M 150,188 C 250,188 300,38 400,188" fill="none" stroke="#94a3b8" stroke-width="2"></path>
+</g>
+<!-- Severe Weather (Emerald) -->
+<g filter="url(#drop-shadow)">
+<path d="M 250,190 C 350,190 400,60 500,190 Z" fill="url(#grad-weather-3d)"></path>
+<path d="M 250,190 C 350,190 400,60 500,190" fill="none" opacity="0.4" stroke="#059669" stroke-width="5"></path>
+<path d="M 250,188 C 350,188 400,58 500,188" fill="none" stroke="#34d399" stroke-width="2"></path>
+</g>
+<!-- High Freight -->
+<g filter="url(#drop-shadow)">
+<path d="M 350,190 C 450,190 500,30 600,190 Z" fill="url(#grad-freight-3d)"></path>
+<path d="M 350,190 C 450,190 500,30 600,190" fill="none" opacity="0.4" stroke="#1d4ed8" stroke-width="5"></path>
+<path d="M 350,188 C 450,188 500,28 600,188" fill="none" stroke="#60a5fa" stroke-width="2"></path>
+</g>
+<!-- Geopolitical Shock -->
+<g filter="url(#drop-shadow)">
+<path d="M 450,190 C 550,190 650,10 750,190 Z" fill="url(#grad-geo-3d)"></path>
+<path d="M 450,190 C 550,190 650,10 750,190" fill="none" opacity="0.4" stroke="#e11d48" stroke-width="5"></path>
+<path d="M 450,188 C 550,188 650,8 750,188" fill="none" stroke="#fb7185" stroke-width="2"></path>
+</g>
+<!-- VaR Marker -->
+<line stroke="#e11d48" stroke-dasharray="4,4" stroke-width="1.5" x1="650" x2="650" y1="0" y2="190"></line>
+<text class="font-label-caps" fill="#e11d48" style="font-size: 10px;" x="655" y="20">VaR (95%)</text>
+<!-- Axis Labels -->
+<text class="font-metadata" fill="#73777e" style="font-size: 10px;" x="0" y="210">₹50 Cr</text>
+<text class="font-metadata" fill="#73777e" style="font-size: 10px;" x="760" y="210">₹120 Cr</text>
+<text class="font-label-caps" fill="#42474d" text-anchor="middle" x="400" y="225">Landed Cost (INR)</text>
+<text class="font-label-caps" fill="#42474d" text-anchor="middle" transform="rotate(-90)" x="-95" y="15">Probability</text>
+</svg></div><div class="flex justify-center gap-6 mt-6"><div class="flex items-center gap-2 text-metadata"><span class="w-3 h-3 rounded-full bg-[#38bdf8]"></span> Base</div>
+<div class="flex items-center gap-2 text-metadata"><span class="w-3 h-3 rounded-full bg-[#94a3b8]"></span> Port</div>
+<div class="flex items-center gap-2 text-metadata"><span class="w-3 h-3 rounded-full bg-[#34d399]"></span> Weather</div>
+<div class="flex items-center gap-2 text-metadata"><span class="w-3 h-3 rounded-full bg-[#60a5fa]"></span> Freight</div>
+<div class="flex items-center gap-2 text-metadata"><span class="w-3 h-3 rounded-full bg-[#fb7185]"></span> Geopolitical</div></div></div><div class="col-span-4 flex flex-col gap-4"><div class="glass-panel rounded-xl p-6"><h3 class="font-headline-md text-[16px] text-primary mb-4 border-b border-outline-variant/30 pb-2">Risk Metrics (95% Confidence)</h3><div class="space-y-4"><div class="font-label-caps text-on-surface-variant uppercase">Value at Risk (VaR)</div><div class="flex justify-between text-body-md"><span class="">Base Plan</span><span class="font-bold">₹72.4 Cr</span></div><div class="flex justify-between text-body-md text-error"><span class="">Geopolitical Shock</span><span class="font-bold">₹96.3 Cr</span></div><div class="font-label-caps text-on-surface-variant uppercase mt-4">Expected Shortfall (ES)</div><div class="flex justify-between text-body-md"><span class="">Base Plan</span><span class="font-bold">₹79.8 Cr</span></div><div class="flex justify-between text-body-md text-error"><span class="">Geopolitical Shock</span><span class="font-bold">₹107.6 Cr</span></div></div></div></div></section>
+<section class="mt-10"><h2 class="font-headline-md text-headline-md text-primary mb-6">Recommendations</h2><div class="grid grid-cols-4 gap-gutter"><div class="glass-panel rounded-xl p-6 flex flex-col gap-4 hover:bg-surface-container-low/50 transition-colors cursor-pointer"><div class="w-10 h-10 rounded-lg bg-secondary-fixed flex items-center justify-center text-secondary"><span class="material-symbols-outlined">trending_down</span></div><h4 class="font-bold text-primary">Hedge Freight Risk</h4><p class="text-metadata text-on-surface-variant">Consider forward freight agreement to lock current favorable rates.</p><div class="mt-auto pt-4 border-t border-outline-variant/20"><div class="text-label-caps text-on-surface-variant uppercase">Potential Savings</div><div class="text-headline-md text-secondary">₹6.4 Cr</div></div></div><div class="glass-panel rounded-xl p-6 flex flex-col gap-4 hover:bg-surface-container-low/50 transition-colors cursor-pointer"><div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined">anchor</span></div><h4 class="font-bold text-primary">Alternate Port Strategy</h4><p class="text-metadata text-on-surface-variant">Evaluate Dhamra or Gangavaram to reduce congestion risk.</p><div class="mt-auto pt-4 border-t border-outline-variant/20"><div class="text-label-caps text-on-surface-variant uppercase">Potential Savings</div><div class="text-headline-md text-primary">₹3.8 Cr</div></div></div><div class="glass-panel rounded-xl p-6 flex flex-col gap-4 hover:bg-surface-container-low/50 transition-colors cursor-pointer"><div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined">schedule</span></div><h4 class="font-bold text-primary">Schedule Flexibility</h4><p class="text-metadata text-on-surface-variant">Add 3-5 days buffer before laycan to absorb weather disruptions.</p><div class="mt-auto pt-4 border-t border-outline-variant/20"><div class="text-label-caps text-on-surface-variant uppercase">Potential Savings</div><div class="text-headline-md text-primary">₹2.1 Cr</div></div></div><div class="glass-panel rounded-xl p-6 flex flex-col gap-4 hover:bg-surface-container-low/50 transition-colors cursor-pointer"><div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined">security</span></div><h4 class="font-bold text-primary">Risk Transfer</h4><p class="text-metadata text-on-surface-variant">Increase insurance coverage for geopolitical and delay risks.</p><div class="mt-auto pt-4 border-t border-outline-variant/20"><div class="text-label-caps text-on-surface-variant uppercase">Potential Savings</div><div class="text-headline-md text-primary">₹1.7 Cr</div></div></div></div></section></div>
+</main>
+<script>
+        document.getElementById('runSimBtn').addEventListener('click', function() {
+            const vizArea = document.getElementById('simVizArea');
+            vizArea.classList.remove('hidden');
+            // Small delay to allow display:block to apply before animating opacity
+            setTimeout(() => {
+                vizArea.classList.remove('opacity-0');
+            }, 50);
+        });
+
+        // Comparison Strategy Logic
+        const compareBtn = document.getElementById('compareBtn');
+        const compareArea = document.getElementById('compareArea');
+        const closeCompareBtn = document.getElementById('closeCompareBtn');
+        const sliderHandle = document.getElementById('sliderHandle');
+        const rightSplit = document.getElementById('rightSplit');
+        const splitContainer = document.getElementById('splitContainer');
+
+        compareBtn.addEventListener('click', function() {
+            compareArea.classList.remove('hidden');
+            setTimeout(() => {
+                compareArea.classList.remove('opacity-0');
+            }, 50);
+        });
+
+        closeCompareBtn.addEventListener('click', function() {
+            compareArea.classList.add('opacity-0');
+            setTimeout(() => {
+                compareArea.classList.add('hidden');
+            }, 500);
+        });
+
+        // Slider functionality
+        let isDragging = false;
+
+        sliderHandle.addEventListener('mousedown', function(e) {
+            isDragging = true;
+        });
+
+        window.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+
+        window.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            
+            const rect = splitContainer.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            
+            // Constrain within bounds (10% to 90%)
+            const minX = rect.width * 0.1;
+            const maxX = rect.width * 0.9;
+            
+            if (x < minX) x = minX;
+            if (x > maxX) x = maxX;
+            
+            const percentage = (x / rect.width) * 100;
+            
+            sliderHandle.style.left = `${percentage}%`;
+            rightSplit.style.clipPath = `inset(0 0 0 ${percentage}%)`;
+        });
+    </script>
+</body></html>

@@ -1,0 +1,3 @@
+# Forecasting
+
+Scaffold document.

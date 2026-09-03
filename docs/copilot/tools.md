@@ -1,0 +1,3 @@
+# Copilot Tools
+
+Scaffold document.

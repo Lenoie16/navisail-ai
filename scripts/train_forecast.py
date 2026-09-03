@@ -1,0 +1,1 @@
+"""Forecast training script scaffold."""

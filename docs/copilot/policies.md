@@ -1,0 +1,3 @@
+# Copilot Policies
+
+Scaffold document.

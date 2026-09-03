@@ -1,0 +1,1 @@
+"""Forecast persistence model scaffold."""

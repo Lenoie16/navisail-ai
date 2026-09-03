@@ -1,0 +1,3 @@
+# Copilot Prompts
+
+Scaffold document.
