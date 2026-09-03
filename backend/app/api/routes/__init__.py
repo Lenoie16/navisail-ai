@@ -23,6 +23,7 @@ from app.api.routes.plants import router as plants_router
 from app.api.routes.ports import router as ports_router
 from app.api.routes.recommendations import router as recommendations_router
 from app.api.routes.risk import router as risk_router
+from app.api.routes.runtime import router as runtime_router
 from app.api.routes.shipments import router as shipments_router
 from app.api.routes.supply import router as supply_router
 from app.api.routes.vessels import router as vessels_router
@@ -54,4 +55,5 @@ routers = (
     plants_router,
     risk_router,
     recommendations_router,
+    runtime_router,
 )

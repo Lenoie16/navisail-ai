@@ -130,6 +130,7 @@ surfaces:
 ```text
 GET  /api/v1/data-sources/datadocked/health
 POST /api/v1/data-sources/datadocked/vessels/location
+GET  /api/v1/runtime/data-status
 ```
 
 See [Data Docked integration](docs/data/datadocked-integration.md) for cache,
