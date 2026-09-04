@@ -1,7 +1,15 @@
 .env
+.env.*.local
+.env.local
+.env.production
+.env.staging
 .venv/
 __pycache__/
 *.py[cod]
+*.pem
+*.key
+*.p12
+*.pfx
 .pytest_cache/
 .coverage
 node_modules/
